@@ -77,13 +77,12 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     private boolean openCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        if (!checkPermissions()) {
-            // Memorizza il callback e gli argomenti per dopo la concessione dei permessi
-            pendingOpenCallback = callbackContext;
-            pendingOpenArgs = args;
-            requestPermissions();
-            return true; // Non restituire errore, aspetta la risposta ai permessi
-        }
+        // RIMUOVI completamente il controllo permessi per USB cameras
+        // if (!checkPermissions()) {
+        //     requestPermissions();
+        //     callbackContext.error("Camera permissions not granted");
+        //     return true;
+        // }
 
         JSONObject options = args.optJSONObject(0);
         if (options != null) {
@@ -108,43 +107,19 @@ public class UsbExternalCamera extends CordovaPlugin {
         return true;
     }
     
-    // Nuovo metodo: gestisce la risposta ai permessi
-    @Override
-    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            boolean allPermissionsGranted = true;
-            
-            // Controlla se tutti i permessi sono stati concessi
-            for (int result : grantResults) {
-                if (result != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false;
-                    break;
-                }
-            }
-            
-            if (allPermissionsGranted) {
-                // Permessi concessi: riprova ad aprire la fotocamera
-                if (pendingOpenCallback != null) {
-                    try {
-                        openCamera(pendingOpenArgs, pendingOpenCallback);
-                    } catch (JSONException e) {
-                        pendingOpenCallback.error("Error processing camera open after permissions: " + e.getMessage());
-                    }
-                    // Pulisci i riferimenti
-                    pendingOpenCallback = null;
-                    pendingOpenArgs = null;
-                }
-            } else {
-                // Permessi negati
-                if (pendingOpenCallback != null) {
-                    pendingOpenCallback.error("Camera permissions denied by user");
-                    pendingOpenCallback = null;
-                    pendingOpenArgs = null;
-                }
-            }
-        }
+    // Metodo semplificato per controllo permessi USB
+    private boolean checkUsbPermissions() {
+        // Per fotocamere USB esterne, controlla solo i permessi USB
+        UsbManager usbManager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
+        return usbManager != null;
     }
-
+    
+    // RIMUOVI o commenta questi metodi se non servono più
+    // private boolean checkPermissions() { ... }
+    // private void requestPermissions() { ... }
+    // @Override onRequestPermissionResult() { ... }
+}
+    
     private boolean stopPreview(CallbackContext callbackContext) {
         try {
             isPreviewActive = false;
