@@ -72,6 +72,8 @@ public class UsbExternalCamera extends CordovaPlugin {
                 return takePhoto(callbackContext);
             case "close":
                 return closeCamera(callbackContext);
+            case "listCameras":  // ← NUOVO COMANDO
+                return listCameras(callbackContext);
             default:
                 return false;
         }
@@ -181,21 +183,51 @@ public class UsbExternalCamera extends CordovaPlugin {
     private void initializeCamera() throws CameraAccessException {
         cameraManager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
         
-        // Find external camera
+        // Find external camera - logica migliorata
         String[] cameraIds = cameraManager.getCameraIdList();
+        Log.d(TAG, "Found " + cameraIds.length + " cameras");
+        
         for (String cameraId : cameraIds) {
             CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
             Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            
+            Log.d(TAG, "Camera " + cameraId + " - Lens facing: " + lensFacing);
+            
+            // Prima prova a trovare telecamere esterne
             if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) {
                 externalCameraId = cameraId;
+                Log.d(TAG, "Found external camera: " + cameraId);
                 break;
+            }
+        }
+        
+        // Se non trova telecamere esterne, usa la prima disponibile (fallback)
+        if (externalCameraId == null && cameraIds.length > 0) {
+            // Prova a usare una telecamera che non sia quella frontale principale
+            for (String cameraId : cameraIds) {
+                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                
+                // Evita la fotocamera frontale se possibile
+                if (lensFacing == null || lensFacing != CameraCharacteristics.LENS_FACING_FRONT) {
+                    externalCameraId = cameraId;
+                    Log.d(TAG, "Using fallback camera: " + cameraId);
+                    break;
+                }
+            }
+            
+            // Se ancora non trova nulla, usa la prima disponibile
+            if (externalCameraId == null) {
+                externalCameraId = cameraIds[0];
+                Log.d(TAG, "Using first available camera: " + externalCameraId);
             }
         }
 
         if (externalCameraId == null) {
-            throw new RuntimeException("No external camera found");
+            throw new RuntimeException("No camera found. Available cameras: " + Arrays.toString(cameraIds));
         }
 
+        Log.d(TAG, "Selected camera: " + externalCameraId);
         startBackgroundThread();
         openCameraDevice();
     }
@@ -422,5 +454,39 @@ public class UsbExternalCamera extends CordovaPlugin {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
         cordova.requestPermissions(this, PERMISSION_REQUEST_CODE, permissions);
+    }
+
+    private boolean listCameras(CallbackContext callbackContext) {
+        try {
+            CameraManager manager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
+            String[] cameraIds = manager.getCameraIdList();
+            
+            JSONArray cameras = new JSONArray();
+            for (String cameraId : cameraIds) {
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                
+                JSONObject camera = new JSONObject();
+                camera.put("id", cameraId);
+                camera.put("lensFacing", lensFacing);
+                camera.put("facingName", getFacingName(lensFacing));
+                cameras.put(camera);
+            }
+            
+            callbackContext.success(cameras);
+        } catch (Exception e) {
+            callbackContext.error("Error listing cameras: " + e.getMessage());
+        }
+        return true;
+    }
+
+    private String getFacingName(Integer lensFacing) {
+        if (lensFacing == null) return "UNKNOWN";
+        switch (lensFacing) {
+            case CameraCharacteristics.LENS_FACING_FRONT: return "FRONT";
+            case CameraCharacteristics.LENS_FACING_BACK: return "BACK";
+            case CameraCharacteristics.LENS_FACING_EXTERNAL: return "EXTERNAL";
+            default: return "OTHER(" + lensFacing + ")";
+        }
     }
 }
