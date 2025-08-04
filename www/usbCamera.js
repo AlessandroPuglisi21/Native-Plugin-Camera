@@ -50,6 +50,9 @@ var UsbCamera = {
      */
     close: function(callback, errorCallback) {
         exec(callback, errorCallback, 'UsbExternalCamera', 'close', []);
+    },
+    listCameras: function (callback, errorCallback) {
+        exec(callback, errorCallback, 'UsbExternalCamera', 'listCameras', []);
     }
 };
 
