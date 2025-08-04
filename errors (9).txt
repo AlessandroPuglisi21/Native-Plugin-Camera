@@ -1,5 +1,5 @@
 Handling project.properties
-searchFor /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/project.properties
+searchFor /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/project.properties
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running restoreBackups.js
 cordova-custom-config: Skipping auto-restore of config file backup(s)
@@ -8,14 +8,14 @@ cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Aborting applyCustomConfig.js because current hook 'before_prepare' is not configured hook 'after_prepare'
 cordova-custom-config: Finished applying platform config
 The "AndroidWindowSplashScreenAnimatedIcon" value does not exist. Cordova's default will be used.
-Copy /Users/admin/build-server/1754318640579/inde-container24.5/build-extras.gradle to /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android
-Skip /Users/admin/build-server/1754318640579/inde-container24.5/google-services.json copy (path does not exist)
-searchFor /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-searchFor /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-searchFor /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
-wrote /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
-searchFor /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-wrote /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+Copy /Users/admin/build-server/1754319240272/inde-container24.5/build-extras.gradle to /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android
+Skip /Users/admin/build-server/1754319240272/inde-container24.5/google-services.json copy (path does not exist)
+searchFor /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+wrote /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+searchFor /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+wrote /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Searching config.xml for prefixed elements: custom-preference
@@ -23,7 +23,7 @@ DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/cus
 DEBUG: Searching config.xml for prefixed elements: platform[@name='android']custom-config-file
 DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/custom-resource
 cordova-custom-config: Finished applying platform config
-cordova-plugin-androidx-adapter: Processed 96 source files in 2082ms
+cordova-plugin-androidx-adapter: Processed 96 source files in 2244ms
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Aborting applyCustomConfig.js because current hook 'before_compile' is not configured hook 'after_prepare'
@@ -40,7 +40,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 See https://docs.gradle.org/7.6.4/userguide/command_line_interface.html#sec:command_line_warnings
 
-BUILD SUCCESSFUL in 909ms
+BUILD SUCCESSFUL in 973ms
 1 actionable task: 1 executed
 Subproject Path: CordovaLib
 Subproject Path: app
@@ -84,29 +84,66 @@ The RenderScript APIs are deprecated. They will be removed in Android Gradle plu
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
 > Task :CordovaLib:extractDeepLinksDebug
-> Task :CordovaLib:compileDebugLibraryResources
 > Task :CordovaLib:processDebugManifest
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :CordovaLib:compileDebugLibraryResources
+> Task :app:processDebugManifestForPackage
+> Task :CordovaLib:generateDebugBuildConfig
 > Task :CordovaLib:parseDebugLocalResources
+> Task :CordovaLib:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :CordovaLib:mergeDebugShaders
+> Task :CordovaLib:compileDebugShaders NO-SOURCE
+> Task :CordovaLib:generateDebugAssets UP-TO-DATE
+> Task :CordovaLib:packageDebugAssets
+> Task :CordovaLib:generateDebugRFile
 > Task :app:mergeDebugResources
+> Task :app:mergeDebugAssets
+> Task :app:processDebugResources
 
-> Task :app:processDebugMainManifest FAILED
-/Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml:74:5-92 Error:
-Element uses-permission#android.permission.CAMERA at AndroidManifest.xml:74:5-92 duplicated with element declared at AndroidManifest.xml:64:5-65
-/Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml:75:5-107 Error:
-Element uses-permission#android.permission.READ_EXTERNAL_STORAGE at AndroidManifest.xml:75:5-107 duplicated with element declared at AndroidManifest.xml:36:5-80
-/Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml:76:5-108 Error:
-Element uses-permission#android.permission.WRITE_EXTERNAL_STORAGE at AndroidManifest.xml:76:5-108 duplicated with element declared at AndroidManifest.xml:37:5-108
-/Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml Error:
-Validation failed, exiting
+> Task :CordovaLib:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
 
-See https://developer.android.com/r/studio-ui/build/manifest-merger for more information about the manifest merger.
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :CordovaLib:processDebugJavaRes
+> Task :CordovaLib:bundleLibCompileToJarDebug
+> Task :CordovaLib:bundleLibResDebug
+> Task :app:checkDebugDuplicateClasses
+> Task :app:compressDebugAssets
 
+> Task :app:compileDebugJavaWithJavac FAILED
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.6/userguide/command_line_interface.html#sec:command_line_warnings
+35 actionable tasks: 35 executed
+/Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:113: error: cannot find symbol
+UsbManager usbManager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
+^
+symbol: class UsbManager
+location: class UsbExternalCamera
+/Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:113: error: cannot find symbol
+UsbManager usbManager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
+^
+symbol: class UsbManager
+location: class UsbExternalCamera
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+2 errors
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
-Execution failed for task ':app:processDebugMainManifest'.
-> Manifest merger failed with multiple errors, see logs
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler error output for details.
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -115,12 +152,5 @@ Execution failed for task ':app:processDebugMainManifest'.
 
 * Get more help at https://help.gradle.org
 
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
-
-You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-
-See https://docs.gradle.org/7.6/userguide/command_line_interface.html#sec:command_line_warnings
-
-BUILD FAILED in 2s
-18 actionable tasks: 18 executed
-Command failed with exit code 1: /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/gradlew -b /Users/admin/build-server/1754318640579/inde-container24.5/platforms/android/build.gradle cdvBuildDebug
+BUILD FAILED in 8s
+Command failed with exit code 1: /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/gradlew -b /Users/admin/build-server/1754319240272/inde-container24.5/platforms/android/build.gradle cdvBuildDebug

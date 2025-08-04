@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.camera2.*;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.hardware.usb.UsbManager;  // ← AGGIUNGI QUESTA RIGA
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Environment;
