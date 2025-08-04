@@ -118,7 +118,7 @@ public class UsbExternalCamera extends CordovaPlugin {
     // private boolean checkPermissions() { ... }
     // private void requestPermissions() { ... }
     // @Override onRequestPermissionResult() { ... }
-}
+
     
     private boolean stopPreview(CallbackContext callbackContext) {
         try {
