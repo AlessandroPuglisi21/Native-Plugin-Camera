@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        id="cordova-plugin-usb-external-camera"
+        version="1.0.0">
+    <name>USB External Camera</name>
+    <description>Cordova plugin for accessing external USB-UVC webcams on Android</description>
+    <license>MIT</license>
+    <keywords>cordova,camera,usb,uvc,external</keywords>
+    
+    <engines>
+        <engine name="cordova" version=">=9.0.0" />
+        <engine name="cordova-android" version=">=9.0.0" />
+    </engines>
+
+    <js-module src="www/usbCamera.js" name="UsbCamera">
+        <clobbers target="navigator.usbCamera" />
+    </js-module>
+
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="UsbExternalCamera">
+                <param name="android-package" value="com.cordova.plugin.UsbExternalCamera" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-feature android:name="android.hardware.usb.host" android:required="true" />
+            <uses-feature android:name="android.hardware.camera" android:required="false" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:name="com.cordova.plugin.UsbCameraActivity"
+                     android:exported="false"
+                     android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        </config-file>
+
+        <source-file src="src/android/UsbExternalCamera.java" target-dir="src/com/cordova/plugin" />
+        
+        <resource-file src="src/android/res/values/strings.xml" target="res/values/strings_usb_camera.xml" />
+
+        <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+    </platform>
+</plugin>

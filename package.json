@@ -1,0 +1,43 @@
+{
+  "name": "cordova-plugin-usb-external-camera",
+  "version": "1.0.0",
+  "description": "Cordova plugin for accessing external USB-UVC webcams on Android",
+  "main": "www/usbCamera.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cordova-plugin-usb-external-camera.git"
+  },
+  "keywords": [
+    "cordova",
+    "plugin",
+    "camera",
+    "usb",
+    "uvc",
+    "external",
+    "android",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/cordova-plugin-usb-external-camera/issues"
+  },
+  "homepage": "https://github.com/yourusername/cordova-plugin-usb-external-camera#readme",
+  "cordova": {
+    "id": "cordova-plugin-usb-external-camera",
+    "platforms": [
+      "android"
+    ]
+  },
+  "engines": {
+    "cordovaDependencies": {
+      ">=9.0.0": {
+        "cordova-android": ">=9.0.0"
+      }
+    }
+  }
+}

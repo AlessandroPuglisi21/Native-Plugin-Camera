@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="usb_camera_permission_denied">Camera permission denied</string>
+    <string name="usb_camera_not_found">External USB camera not found</string>
+    <string name="usb_camera_error">Camera error occurred</string>
+    <string name="usb_camera_preview_started">Camera preview started</string>
+    <string name="usb_camera_preview_stopped">Camera preview stopped</string>
+    <string name="usb_camera_photo_saved">Photo saved successfully</string>
+    <string name="usb_camera_closed">Camera closed</string>
+</resources>
