@@ -92,8 +92,14 @@ public class UsbExternalCamera extends CordovaPlugin {
             previewWidth = options.optInt("width", 1280);
             previewHeight = options.optInt("height", 720);
             previewFps = options.optInt("fps", 30);
+            
+            // ← NUOVO: Supporta cameraId specifico
+            String requestedCameraId = options.optString("cameraId", null);
+            if (requestedCameraId != null && !requestedCameraId.isEmpty()) {
+                externalCameraId = requestedCameraId;
+            }
         }
-
+        
         frameCallback = callbackContext;
         
         cordova.getThreadPool().execute(() -> {
@@ -183,48 +189,26 @@ public class UsbExternalCamera extends CordovaPlugin {
     private void initializeCamera() throws CameraAccessException {
         cameraManager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
         
-        // Find external camera - logica migliorata
         String[] cameraIds = cameraManager.getCameraIdList();
         Log.d(TAG, "Found " + cameraIds.length + " cameras");
         
+        // PRIMA: Cerca solo telecamere ESTERNE (USB)
         for (String cameraId : cameraIds) {
             CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
             Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
             
             Log.d(TAG, "Camera " + cameraId + " - Lens facing: " + lensFacing);
             
-            // Prima prova a trovare telecamere esterne
             if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) {
                 externalCameraId = cameraId;
-                Log.d(TAG, "Found external camera: " + cameraId);
+                Log.d(TAG, "Found external USB camera: " + cameraId);
                 break;
             }
         }
         
-        // Se non trova telecamere esterne, usa la prima disponibile (fallback)
-        if (externalCameraId == null && cameraIds.length > 0) {
-            // Prova a usare una telecamera che non sia quella frontale principale
-            for (String cameraId : cameraIds) {
-                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
-                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                
-                // Evita la fotocamera frontale se possibile
-                if (lensFacing == null || lensFacing != CameraCharacteristics.LENS_FACING_FRONT) {
-                    externalCameraId = cameraId;
-                    Log.d(TAG, "Using fallback camera: " + cameraId);
-                    break;
-                }
-            }
-            
-            // Se ancora non trova nulla, usa la prima disponibile
-            if (externalCameraId == null) {
-                externalCameraId = cameraIds[0];
-                Log.d(TAG, "Using first available camera: " + externalCameraId);
-            }
-        }
-
+        // RIMUOVI IL FALLBACK - Solo telecamere USB
         if (externalCameraId == null) {
-            throw new RuntimeException("No camera found. Available cameras: " + Arrays.toString(cameraIds));
+            throw new RuntimeException("No USB external camera found. Available cameras: " + Arrays.toString(cameraIds) + ". Use listCameras() to see all available cameras and specify cameraId in options.");
         }
 
         Log.d(TAG, "Selected camera: " + externalCameraId);
