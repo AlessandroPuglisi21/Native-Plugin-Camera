@@ -41,5 +41,8 @@
         <resource-file src="src/android/res/values/strings.xml" target="res/values/strings_usb_camera.xml" />
 
         <framework src="src/android/build.gradle" custom="true" type="gradleReference" />
+        
+        <!-- Aggiungi il build-extras.gradle per risolvere conflitti Kotlin -->
+        <framework src="build-extras.gradle" custom="true" type="gradleReference" />
     </platform>
 </plugin>

@@ -1,0 +1,21 @@
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            eachDependency { details ->
+                if (details.requested.group == 'org.jetbrains.kotlin') {
+                    details.useVersion '1.8.22'
+                    details.because 'evita classi duplicate Kotlin - forza versione unica'
+                }
+            }
+        }
+    }
+}
+
+// Forza anche le dipendenze androidx.camera per evitare conflitti
+configurations.all {
+    resolutionStrategy {
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+    }
+}
