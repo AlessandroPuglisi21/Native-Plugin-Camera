@@ -307,7 +307,30 @@ public class UsbExternalCamera extends CordovaPlugin {
                         
                         captureSession = session;
                         try {
-                            previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                            // ← CONTROLLO DELLE CAPACITÀ DELLA CAMERA
+                            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(externalCameraId);
+                            int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+                            
+                            // Imposta l'autofocus solo se supportato
+                            if (afModes != null && afModes.length > 0) {
+                                boolean supportsAF = false;
+                                for (int mode : afModes) {
+                                    if (mode == CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) {
+                                        supportsAF = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (supportsAF) {
+                                    previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                                    Log.d(TAG, "Autofocus enabled for USB camera");
+                                } else {
+                                    Log.d(TAG, "Autofocus not supported by USB camera, using manual focus");
+                                }
+                            } else {
+                                Log.d(TAG, "No autofocus modes available for USB camera");
+                            }
+                            
                             CaptureRequest previewRequest = previewRequestBuilder.build();
                             captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
                             isPreviewActive = true;
@@ -488,19 +511,18 @@ public class UsbExternalCamera extends CordovaPlugin {
         }
         
         try {
-            // Riavvia la sessione di preview se necessario
             if (captureSession != null) {
                 CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
                 previewRequestBuilder.addTarget(imageReader.getSurface());
-                previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                
+                // ← RIMUOVI O CONTROLLA L'AUTOFOCUS ANCHE QUI
+                // previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                 
                 CaptureRequest previewRequest = previewRequestBuilder.build();
                 captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
                 isPreviewActive = true;
                 
-                // Imposta il callback per i frame
                 frameCallback = callbackContext;
-                
                 callbackContext.success("Preview started successfully");
             } else {
                 callbackContext.error("Camera session not available. Try reopening the camera.");
