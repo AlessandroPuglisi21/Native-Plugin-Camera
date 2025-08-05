@@ -475,42 +475,41 @@ public class UsbExternalCamera extends CordovaPlugin {
             default: return "OTHER(" + lensFacing + ")";
         }
     }
-}
-
-private boolean startPreview(CallbackContext callbackContext) {
-    if (cameraDevice == null) {
-        callbackContext.error("Camera not opened. Call open() first.");
-        return true;
-    }
     
-    if (isPreviewActive) {
-        callbackContext.error("Preview is already active");
-        return true;
-    }
-    
-    try {
-        // Riavvia la sessione di preview se necessario
-        if (captureSession != null) {
-            CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            previewRequestBuilder.addTarget(imageReader.getSurface());
-            previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-            
-            CaptureRequest previewRequest = previewRequestBuilder.build();
-            captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
-            isPreviewActive = true;
-            
-            // Imposta il callback per i frame
-            frameCallback = callbackContext;
-            
-            callbackContext.success("Preview started successfully");
-        } else {
-            callbackContext.error("Camera session not available. Try reopening the camera.");
+    private boolean startPreview(CallbackContext callbackContext) {
+        if (cameraDevice == null) {
+            callbackContext.error("Camera not opened. Call open() first.");
+            return true;
         }
-    } catch (CameraAccessException e) {
-        Log.e(TAG, "Error starting preview", e);
-        callbackContext.error("Failed to start preview: " + e.getMessage());
+        
+        if (isPreviewActive) {
+            callbackContext.error("Preview is already active");
+            return true;
+        }
+        
+        try {
+            // Riavvia la sessione di preview se necessario
+            if (captureSession != null) {
+                CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                previewRequestBuilder.addTarget(imageReader.getSurface());
+                previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                
+                CaptureRequest previewRequest = previewRequestBuilder.build();
+                captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
+                isPreviewActive = true;
+                
+                // Imposta il callback per i frame
+                frameCallback = callbackContext;
+                
+                callbackContext.success("Preview started successfully");
+            } else {
+                callbackContext.error("Camera session not available. Try reopening the camera.");
+            }
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error starting preview", e);
+            callbackContext.error("Failed to start preview: " + e.getMessage());
+        }
+        
+        return true;
     }
-    
-    return true;
-}
 }
