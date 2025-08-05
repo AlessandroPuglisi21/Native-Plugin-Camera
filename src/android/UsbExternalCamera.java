@@ -510,23 +510,26 @@ public class UsbExternalCamera extends CordovaPlugin {
             return true;
         }
         
+        if (captureSession == null) {
+            callbackContext.error("Camera session not available. Try reopening the camera.");
+            return true;
+        }
+        
         try {
-            if (captureSession != null) {
-                CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-                previewRequestBuilder.addTarget(imageReader.getSurface());
-                
-                // ← RIMUOVI O CONTROLLA L'AUTOFOCUS ANCHE QUI
-                // previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-                
-                CaptureRequest previewRequest = previewRequestBuilder.build();
-                captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
-                isPreviewActive = true;
-                
-                frameCallback = callbackContext;
-                callbackContext.success("Preview started successfully");
-            } else {
-                callbackContext.error("Camera session not available. Try reopening the camera.");
-            }
+            // ← IMPOSTA IL CALLBACK PRIMA di avviare la preview
+            frameCallback = callbackContext;
+            
+            CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            previewRequestBuilder.addTarget(imageReader.getSurface());
+            
+            CaptureRequest previewRequest = previewRequestBuilder.build();
+            captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
+            isPreviewActive = true;
+            
+            // ← NON chiamare callbackContext.success() qui!
+            // Il callback verrà usato per i frame, non per il successo
+            Log.d(TAG, "Preview started successfully");
+            
         } catch (CameraAccessException e) {
             Log.e(TAG, "Error starting preview", e);
             callbackContext.error("Failed to start preview: " + e.getMessage());
