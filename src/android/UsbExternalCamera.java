@@ -82,36 +82,29 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     private boolean openCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        // RIMUOVI completamente il controllo permessi per USB cameras
-        // if (!checkPermissions()) {
-        //     requestPermissions();
-        //     callbackContext.error("Camera permissions not granted");
-        //     return true;
-        // }
-
         JSONObject options = args.optJSONObject(0);
         if (options != null) {
             previewWidth = options.optInt("width", 1280);
             previewHeight = options.optInt("height", 720);
             previewFps = options.optInt("fps", 30);
             
-            // ← NUOVO: Supporta cameraId specifico
             String requestedCameraId = options.optString("cameraId", null);
             if (requestedCameraId != null && !requestedCameraId.isEmpty()) {
                 externalCameraId = requestedCameraId;
             }
         }
         
-        frameCallback = callbackContext;
+        // ← RIMUOVI QUESTA RIGA!
+        // frameCallback = callbackContext;
         
         cordova.getThreadPool().execute(() -> {
             try {
                 initializeCamera();
+                // ← Restituisci successo per open(), non frame
+                callbackContext.success("Camera opened successfully");
             } catch (Exception e) {
                 Log.e(TAG, "Error opening camera", e);
-                if (frameCallback != null) {
-                    frameCallback.error("Failed to open camera: " + e.getMessage());
-                }
+                callbackContext.error("Failed to open camera: " + e.getMessage());
             }
         });
         
