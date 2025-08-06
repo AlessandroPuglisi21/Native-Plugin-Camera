@@ -194,14 +194,28 @@ public class UsbExternalCamera extends CordovaPlugin {
         cameraManager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
         
         String[] cameraIds = cameraManager.getCameraIdList();
-        Log.d(TAG, "Found " + cameraIds.length + " cameras");
+        Log.d(TAG, "Found " + cameraIds.length + " cameras: " + Arrays.toString(cameraIds));
         
-        // ← NUOVO: Se è specificato un cameraId, usalo direttamente
+        // Se è specificato un cameraId, validalo prima di usarlo
         if (externalCameraId != null && !externalCameraId.isEmpty()) {
-            Log.d(TAG, "Using specified camera ID: " + externalCameraId);
-            startBackgroundThread();
-            openCameraDevice();
-            return;
+            // Verifica che l'ID esista
+            boolean cameraExists = false;
+            for (String id : cameraIds) {
+                if (id.equals(externalCameraId)) {
+                    cameraExists = true;
+                    break;
+                }
+            }
+            
+            if (cameraExists) {
+                Log.d(TAG, "Using specified camera ID: " + externalCameraId);
+                startBackgroundThread();
+                openCameraDevice();
+                return;
+            } else {
+                Log.w(TAG, "Specified camera ID " + externalCameraId + " not found. Available IDs: " + Arrays.toString(cameraIds));
+                throw new RuntimeException("Camera ID " + externalCameraId + " not found. Available cameras: " + Arrays.toString(cameraIds));
+            }
         }
         
         // ← NUOVO: Cerca USB camere con il metodo avanzato
