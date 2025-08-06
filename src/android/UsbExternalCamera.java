@@ -1,5 +1,9 @@
 package com.cordova.plugin;
 
+// Aggiungi questo importo in cima al file
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
+import java.util.HashMap;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -633,118 +637,118 @@ public class UsbExternalCamera extends CordovaPlugin {
             return "Camera " + cameraId;
         }
     }
-}
-
-// ← NUOVO METODO: Ottieni informazioni dettagliate USB
-private JSONObject getUsbDeviceInfo(String cameraId) {
-    JSONObject usbInfo = new JSONObject();
-    try {
-        UsbManager usbManager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
-        HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
-        
-        // Cerca dispositivi video USB
-        for (UsbDevice device : deviceList.values()) {
-            // Controlla se è un dispositivo video (classe 14 = Video)
-            if (device.getDeviceClass() == 14 || 
-                device.getDeviceClass() == 239 || // Miscellaneous Device
-                hasVideoInterface(device)) {
-                
-                String deviceName = device.getProductName();
-                String manufacturerName = device.getManufacturerName();
-                
-                // Se troviamo una corrispondenza con l'ID camera
-                if (deviceName != null && manufacturerName != null) {
-                    usbInfo.put("productName", deviceName);
-                    usbInfo.put("manufacturerName", manufacturerName);
-                    usbInfo.put("vendorId", device.getVendorId());
-                    usbInfo.put("productId", device.getProductId());
-                    usbInfo.put("deviceName", device.getDeviceName());
-                    usbInfo.put("fullName", manufacturerName + " " + deviceName);
+    
+    // ← NUOVO METODO: Ottieni informazioni dettagliate USB
+    private JSONObject getUsbDeviceInfo(String cameraId) {
+        JSONObject usbInfo = new JSONObject();
+        try {
+            UsbManager usbManager = (UsbManager) cordova.getActivity().getSystemService(Context.USB_SERVICE);
+            HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
+            
+            // Cerca dispositivi video USB
+            for (UsbDevice device : deviceList.values()) {
+                // Controlla se è un dispositivo video (classe 14 = Video)
+                if (device.getDeviceClass() == 14 || 
+                    device.getDeviceClass() == 239 || // Miscellaneous Device
+                    hasVideoInterface(device)) {
                     
-                    // Identifica specificamente Logitech
-                    if (manufacturerName.toLowerCase().contains("logitech") || 
-                        deviceName.toLowerCase().contains("logitech")) {
-                        usbInfo.put("isLogitech", true);
-                        usbInfo.put("displayName", "Logitech " + deviceName);
-                    } else {
-                        usbInfo.put("isLogitech", false);
-                        usbInfo.put("displayName", manufacturerName + " " + deviceName);
+                    String deviceName = device.getProductName();
+                    String manufacturerName = device.getManufacturerName();
+                    
+                    // Se troviamo una corrispondenza con l'ID camera
+                    if (deviceName != null && manufacturerName != null) {
+                        usbInfo.put("productName", deviceName);
+                        usbInfo.put("manufacturerName", manufacturerName);
+                        usbInfo.put("vendorId", device.getVendorId());
+                        usbInfo.put("productId", device.getProductId());
+                        usbInfo.put("deviceName", device.getDeviceName());
+                        usbInfo.put("fullName", manufacturerName + " " + deviceName);
+                        
+                        // Identifica specificamente Logitech
+                        if (manufacturerName.toLowerCase().contains("logitech") || 
+                            deviceName.toLowerCase().contains("logitech")) {
+                            usbInfo.put("isLogitech", true);
+                            usbInfo.put("displayName", "Logitech " + deviceName);
+                        } else {
+                            usbInfo.put("isLogitech", false);
+                            usbInfo.put("displayName", manufacturerName + " " + deviceName);
+                        }
+                        
+                        Log.d(TAG, "Found USB camera: " + manufacturerName + " " + deviceName);
+                        break;
                     }
-                    
-                    Log.d(TAG, "Found USB camera: " + manufacturerName + " " + deviceName);
-                    break;
                 }
             }
-        }
-        
-        // Se non troviamo info USB, usa fallback
-        if (!usbInfo.has("productName")) {
-            usbInfo.put("displayName", "USB Camera " + cameraId);
-            usbInfo.put("isLogitech", false);
-        }
-        
-    } catch (Exception e) {
-        Log.e(TAG, "Error getting USB device info", e);
-        try {
-            usbInfo.put("displayName", "USB Camera " + cameraId);
-            usbInfo.put("isLogitech", false);
-        } catch (JSONException je) {
-            // Ignore
-        }
-    }
-    return usbInfo;
-}
-
-// ← METODO HELPER: Controlla se ha interfaccia video
-private boolean hasVideoInterface(UsbDevice device) {
-    for (int i = 0; i < device.getInterfaceCount(); i++) {
-        android.hardware.usb.UsbInterface usbInterface = device.getInterface(i);
-        // Classe 14 = Video, Sottoclasse 1 = Video Control, 2 = Video Streaming
-        if (usbInterface.getInterfaceClass() == 14) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// ← AGGIORNA IL METODO listCameras
-private boolean listCameras(CallbackContext callbackContext) {
-    try {
-        CameraManager manager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
-        String[] cameraIds = manager.getCameraIdList();
-        
-        JSONArray cameras = new JSONArray();
-        for (String cameraId : cameraIds) {
-            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             
-            JSONObject camera = new JSONObject();
-            camera.put("id", cameraId);
-            camera.put("isUsbCamera", isSimpleUsbCamera(characteristics, cameraId));
-            
-            if (isSimpleUsbCamera(characteristics, cameraId)) {
-                // ← NUOVO: Ottieni info USB dettagliate
-                JSONObject usbInfo = getUsbDeviceInfo(cameraId);
-                camera.put("name", usbInfo.optString("displayName", "USB Camera " + cameraId));
-                camera.put("manufacturer", usbInfo.optString("manufacturerName", "Unknown"));
-                camera.put("product", usbInfo.optString("productName", "Unknown"));
-                camera.put("isLogitech", usbInfo.optBoolean("isLogitech", false));
-                camera.put("vendorId", usbInfo.optInt("vendorId", 0));
-                camera.put("productId", usbInfo.optInt("productId", 0));
-            } else {
-                camera.put("name", getDeviceName(characteristics, cameraId));
-                camera.put("isLogitech", false);
+            // Se non troviamo info USB, usa fallback
+            if (!usbInfo.has("productName")) {
+                usbInfo.put("displayName", "USB Camera " + cameraId);
+                usbInfo.put("isLogitech", false);
             }
             
-            Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            camera.put("lensFacing", lensFacing);
-            camera.put("facingName", getFacingName(lensFacing));
-            
-            cameras.put(camera);
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting USB device info", e);
+            try {
+                usbInfo.put("displayName", "USB Camera " + cameraId);
+                usbInfo.put("isLogitech", false);
+            } catch (JSONException je) {
+                // Ignore
+            }
         }
-        
-        callbackContext.success(cameras);
-    } catch (Exception e) {
-        callbackContext.error("Error listing cameras: " + e.getMessage());
+        return usbInfo;
     }
-    return true;
+
+    // ← METODO HELPER: Controlla se ha interfaccia video
+    private boolean hasVideoInterface(UsbDevice device) {
+        for (int i = 0; i < device.getInterfaceCount(); i++) {
+            android.hardware.usb.UsbInterface usbInterface = device.getInterface(i);
+            // Classe 14 = Video, Sottoclasse 1 = Video Control, 2 = Video Streaming
+            if (usbInterface.getInterfaceClass() == 14) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ← AGGIORNA IL METODO listCameras
+    private boolean listCameras(CallbackContext callbackContext) {
+        try {
+            CameraManager manager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
+            String[] cameraIds = manager.getCameraIdList();
+            
+            JSONArray cameras = new JSONArray();
+            for (String cameraId : cameraIds) {
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                
+                JSONObject camera = new JSONObject();
+                camera.put("id", cameraId);
+                camera.put("isUsbCamera", isSimpleUsbCamera(characteristics, cameraId));
+                
+                if (isSimpleUsbCamera(characteristics, cameraId)) {
+                    // ← NUOVO: Ottieni info USB dettagliate
+                    JSONObject usbInfo = getUsbDeviceInfo(cameraId);
+                    camera.put("name", usbInfo.optString("displayName", "USB Camera " + cameraId));
+                    camera.put("manufacturer", usbInfo.optString("manufacturerName", "Unknown"));
+                    camera.put("product", usbInfo.optString("productName", "Unknown"));
+                    camera.put("isLogitech", usbInfo.optBoolean("isLogitech", false));
+                    camera.put("vendorId", usbInfo.optInt("vendorId", 0));
+                    camera.put("productId", usbInfo.optInt("productId", 0));
+                } else {
+                    camera.put("name", getDeviceName(characteristics, cameraId));
+                    camera.put("isLogitech", false);
+                }
+                
+                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                camera.put("lensFacing", lensFacing);
+                camera.put("facingName", getFacingName(lensFacing));
+                
+                cameras.put(camera);
+            }
+            
+            callbackContext.success(cameras);
+        } catch (Exception e) {
+            callbackContext.error("Error listing cameras: " + e.getMessage());
+        }
+        return true;
+    }
 }
