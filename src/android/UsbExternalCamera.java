@@ -66,8 +66,6 @@ public class UsbExternalCamera extends CordovaPlugin {
         switch (action) {
             case "open":
                 return openCamera(args, callbackContext);
-            case "startPreview":  // ← NUOVO COMANDO
-                return startPreview(callbackContext);
             case "stopPreview":
                 return stopPreview(callbackContext);
             case "takePhoto":
@@ -82,29 +80,36 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     private boolean openCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
+        // RIMUOVI completamente il controllo permessi per USB cameras
+        // if (!checkPermissions()) {
+        //     requestPermissions();
+        //     callbackContext.error("Camera permissions not granted");
+        //     return true;
+        // }
+
         JSONObject options = args.optJSONObject(0);
         if (options != null) {
             previewWidth = options.optInt("width", 1280);
             previewHeight = options.optInt("height", 720);
             previewFps = options.optInt("fps", 30);
             
+            // ← NUOVO: Supporta cameraId specifico
             String requestedCameraId = options.optString("cameraId", null);
             if (requestedCameraId != null && !requestedCameraId.isEmpty()) {
                 externalCameraId = requestedCameraId;
             }
         }
         
-        // ← RIMUOVI QUESTA RIGA!
-        // frameCallback = callbackContext;
+        frameCallback = callbackContext;
         
         cordova.getThreadPool().execute(() -> {
             try {
                 initializeCamera();
-                // ← Restituisci successo per open(), non frame
-                callbackContext.success("Camera opened successfully");
             } catch (Exception e) {
                 Log.e(TAG, "Error opening camera", e);
-                callbackContext.error("Failed to open camera: " + e.getMessage());
+                if (frameCallback != null) {
+                    frameCallback.error("Failed to open camera: " + e.getMessage());
+                }
             }
         });
         
@@ -300,30 +305,7 @@ public class UsbExternalCamera extends CordovaPlugin {
                         
                         captureSession = session;
                         try {
-                            // ← CONTROLLO DELLE CAPACITÀ DELLA CAMERA
-                            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(externalCameraId);
-                            int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
-                            
-                            // Imposta l'autofocus solo se supportato
-                            if (afModes != null && afModes.length > 0) {
-                                boolean supportsAF = false;
-                                for (int mode : afModes) {
-                                    if (mode == CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) {
-                                        supportsAF = true;
-                                        break;
-                                    }
-                                }
-                                
-                                if (supportsAF) {
-                                    previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-                                    Log.d(TAG, "Autofocus enabled for USB camera");
-                                } else {
-                                    Log.d(TAG, "Autofocus not supported by USB camera, using manual focus");
-                                }
-                            } else {
-                                Log.d(TAG, "No autofocus modes available for USB camera");
-                            }
-                            
+                            previewRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
                             CaptureRequest previewRequest = previewRequestBuilder.build();
                             captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
                             isPreviewActive = true;
@@ -490,44 +472,5 @@ public class UsbExternalCamera extends CordovaPlugin {
             case CameraCharacteristics.LENS_FACING_EXTERNAL: return "EXTERNAL";
             default: return "OTHER(" + lensFacing + ")";
         }
-    }
-    
-    private boolean startPreview(CallbackContext callbackContext) {
-        if (cameraDevice == null) {
-            callbackContext.error("Camera not opened. Call open() first.");
-            return true;
-        }
-        
-        if (isPreviewActive) {
-            callbackContext.error("Preview is already active");
-            return true;
-        }
-        
-        if (captureSession == null) {
-            callbackContext.error("Camera session not available. Try reopening the camera.");
-            return true;
-        }
-        
-        try {
-            // ← IMPOSTA IL CALLBACK PRIMA di avviare la preview
-            frameCallback = callbackContext;
-            
-            CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-            previewRequestBuilder.addTarget(imageReader.getSurface());
-            
-            CaptureRequest previewRequest = previewRequestBuilder.build();
-            captureSession.setRepeatingRequest(previewRequest, null, backgroundHandler);
-            isPreviewActive = true;
-            
-            // ← NON chiamare callbackContext.success() qui!
-            // Il callback verrà usato per i frame, non per il successo
-            Log.d(TAG, "Preview started successfully");
-            
-        } catch (CameraAccessException e) {
-            Log.e(TAG, "Error starting preview", e);
-            callbackContext.error("Failed to start preview: " + e.getMessage());
-        }
-        
-        return true;
     }
 }
