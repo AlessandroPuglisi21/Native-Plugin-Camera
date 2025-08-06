@@ -449,26 +449,17 @@ public class UsbExternalCamera extends CordovaPlugin {
             CameraManager manager = (CameraManager) cordova.getActivity().getSystemService(Context.CAMERA_SERVICE);
             String[] cameraIds = manager.getCameraIdList();
             
-            JSONArray cameras = new JSONArray();
+            JSONArray cameraNames = new JSONArray();
             for (String cameraId : cameraIds) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 
-                // ← NUOVO: Analisi avanzata per identificare USB camere
-                boolean isUsbCamera = isUsbExternalCamera(characteristics, cameraId);
-                
-                JSONObject camera = new JSONObject();
-                camera.put("id", cameraId);
-                camera.put("isUsbCamera", isUsbCamera);  // ← NUOVO CAMPO!
-                camera.put("lensFacing", characteristics.get(CameraCharacteristics.LENS_FACING));
-                camera.put("facingName", getFacingName(characteristics.get(CameraCharacteristics.LENS_FACING)));
-                
-                // ← NUOVO: Informazioni dettagliate per identificazione
-                camera.put("deviceInfo", getDeviceInfo(characteristics));
-                
-                cameras.put(camera);
+                if (isSimpleUsbCamera(characteristics, cameraId)) {
+                    // ← SOLO IL NOME per USB camere
+                    cameraNames.put("USB Camera " + cameraId);
+                }
             }
             
-            callbackContext.success(cameras);
+            callbackContext.success(cameraNames);
         } catch (Exception e) {
             callbackContext.error("Error listing cameras: " + e.getMessage());
         }
