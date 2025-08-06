@@ -192,23 +192,27 @@ public class UsbExternalCamera extends CordovaPlugin {
         String[] cameraIds = cameraManager.getCameraIdList();
         Log.d(TAG, "Found " + cameraIds.length + " cameras");
         
-        // PRIMA: Cerca solo telecamere ESTERNE (USB)
+        // ← NUOVO: Se è specificato un cameraId, usalo direttamente
+        if (externalCameraId != null && !externalCameraId.isEmpty()) {
+            Log.d(TAG, "Using specified camera ID: " + externalCameraId);
+            startBackgroundThread();
+            openCameraDevice();
+            return;
+        }
+        
+        // ← NUOVO: Cerca USB camere con il metodo avanzato
         for (String cameraId : cameraIds) {
             CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
-            Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
             
-            Log.d(TAG, "Camera " + cameraId + " - Lens facing: " + lensFacing);
-            
-            if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) {
+            if (isUsbExternalCamera(characteristics, cameraId)) {
                 externalCameraId = cameraId;
-                Log.d(TAG, "Found external USB camera: " + cameraId);
+                Log.d(TAG, "Found USB external camera: " + cameraId);
                 break;
             }
         }
         
-        // RIMUOVI IL FALLBACK - Solo telecamere USB
         if (externalCameraId == null) {
-            throw new RuntimeException("No USB external camera found. Available cameras: " + Arrays.toString(cameraIds) + ". Use listCameras() to see all available cameras and specify cameraId in options.");
+            throw new RuntimeException("No USB external camera found. Available cameras: " + Arrays.toString(cameraIds) + ". Use listCameras() to see detailed info and specify cameraId in options.");
         }
 
         Log.d(TAG, "Selected camera: " + externalCameraId);
@@ -448,12 +452,19 @@ public class UsbExternalCamera extends CordovaPlugin {
             JSONArray cameras = new JSONArray();
             for (String cameraId : cameraIds) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-                Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+                
+                // ← NUOVO: Analisi avanzata per identificare USB camere
+                boolean isUsbCamera = isUsbExternalCamera(characteristics, cameraId);
                 
                 JSONObject camera = new JSONObject();
                 camera.put("id", cameraId);
-                camera.put("lensFacing", lensFacing);
-                camera.put("facingName", getFacingName(lensFacing));
+                camera.put("isUsbCamera", isUsbCamera);  // ← NUOVO CAMPO!
+                camera.put("lensFacing", characteristics.get(CameraCharacteristics.LENS_FACING));
+                camera.put("facingName", getFacingName(characteristics.get(CameraCharacteristics.LENS_FACING)));
+                
+                // ← NUOVO: Informazioni dettagliate per identificazione
+                camera.put("deviceInfo", getDeviceInfo(characteristics));
+                
                 cameras.put(camera);
             }
             
@@ -473,4 +484,114 @@ public class UsbExternalCamera extends CordovaPlugin {
             default: return "OTHER(" + lensFacing + ")";
         }
     }
+}
+
+// ← NUOVO METODO: Identificazione affidabile USB camera
+private boolean isUsbExternalCamera(CameraCharacteristics characteristics, String cameraId) {
+    try {
+        // 1. Controlla se è esplicitamente EXTERNAL
+        Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+        if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) {
+            return true;
+        }
+        
+        // 2. Controlla le capacità hardware tipiche delle USB camere
+        int[] capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+        if (capabilities != null) {
+            // USB camere spesso NON hanno certe capacità avanzate
+            boolean hasAdvancedFeatures = false;
+            for (int capability : capabilities) {
+                if (capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR ||
+                    capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_POST_PROCESSING ||
+                    capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) {
+                    hasAdvancedFeatures = true;
+                    break;
+                }
+            }
+            // Se NON ha funzioni avanzate, probabilmente è USB
+            if (!hasAdvancedFeatures && capabilities.length <= 2) {
+                Log.d(TAG, "Camera " + cameraId + " identified as USB (limited capabilities)");
+                return true;
+            }
+        }
+        
+        // 3. Controlla i formati supportati
+        StreamConfigurationMap configMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        if (configMap != null) {
+            Size[] jpegSizes = configMap.getOutputSizes(ImageFormat.JPEG);
+            Size[] yuvSizes = configMap.getOutputSizes(ImageFormat.YUV_420_888);
+            
+            // USB camere spesso hanno limitazioni sui formati
+            if (jpegSizes != null && yuvSizes != null) {
+                // Se ha pochi formati o risoluzioni limitate, probabilmente è USB
+                if (jpegSizes.length < 10 || yuvSizes.length < 5) {
+                    Log.d(TAG, "Camera " + cameraId + " identified as USB (limited formats)");
+                    return true;
+                }
+            }
+        }
+        
+        // 4. Controlla il supporto autofocus
+        int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+        if (afModes != null && afModes.length <= 1) {
+            // USB camere spesso hanno autofocus limitato o assente
+            Log.d(TAG, "Camera " + cameraId + " identified as USB (limited autofocus)");
+            return true;
+        }
+        
+        // 5. Controlla l'ID numerico alto (USB camere spesso hanno ID > 1)
+        try {
+            int numericId = Integer.parseInt(cameraId);
+            if (numericId >= 2) {
+                Log.d(TAG, "Camera " + cameraId + " possibly USB (high ID number)");
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            // ID non numerico, potrebbe essere USB
+            return true;
+        }
+        
+        return false;
+        
+    } catch (Exception e) {
+        Log.e(TAG, "Error analyzing camera " + cameraId, e);
+        return false;
+    }
+}
+
+// ← NUOVO METODO: Informazioni dettagliate per debug
+private JSONObject getDeviceInfo(CameraCharacteristics characteristics) {
+    JSONObject info = new JSONObject();
+    try {
+        // Capacità
+        int[] capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+        JSONArray capsArray = new JSONArray();
+        if (capabilities != null) {
+            for (int cap : capabilities) {
+                capsArray.put(cap);
+            }
+        }
+        info.put("capabilities", capsArray);
+        
+        // Modalità autofocus
+        int[] afModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+        JSONArray afArray = new JSONArray();
+        if (afModes != null) {
+            for (int mode : afModes) {
+                afArray.put(mode);
+            }
+        }
+        info.put("autofocusModes", afArray);
+        
+        // Formati supportati
+        StreamConfigurationMap configMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        if (configMap != null) {
+            Size[] jpegSizes = configMap.getOutputSizes(ImageFormat.JPEG);
+            info.put("jpegSizesCount", jpegSizes != null ? jpegSizes.length : 0);
+        }
+        
+    } catch (Exception e) {
+        Log.e(TAG, "Error getting device info", e);
+    }
+    return info;
 }
