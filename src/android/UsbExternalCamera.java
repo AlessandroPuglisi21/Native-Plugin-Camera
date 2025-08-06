@@ -584,4 +584,53 @@ public class UsbExternalCamera extends CordovaPlugin {
         }
         return info;
     }
+
+    // ← AGGIUNGI QUESTO METODO MANCANTE
+    private boolean isSimpleUsbCamera(CameraCharacteristics characteristics, String cameraId) {
+        try {
+            // 1. Controlla se è esplicitamente EXTERNAL
+            Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (lensFacing != null && lensFacing == CameraCharacteristics.LENS_FACING_EXTERNAL) {
+                return true;
+            }
+            
+            // 2. Se l'ID è >= 2, probabilmente è USB
+            try {
+                int numericId = Integer.parseInt(cameraId);
+                return numericId >= 2;
+            } catch (NumberFormatException e) {
+                // ID non numerico, potrebbe essere USB
+                return true;
+            }
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking USB camera: " + cameraId, e);
+            return false;
+        }
+    }
+
+    // ← AGGIUNGI ANCHE QUESTO METODO
+    private String getDeviceName(CameraCharacteristics characteristics, String cameraId) {
+        try {
+            Integer lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            
+            if (lensFacing != null) {
+                switch (lensFacing) {
+                    case CameraCharacteristics.LENS_FACING_FRONT:
+                        return "Front Camera (ID: " + cameraId + ")";
+                    case CameraCharacteristics.LENS_FACING_BACK:
+                        return "Back Camera (ID: " + cameraId + ")";
+                    case CameraCharacteristics.LENS_FACING_EXTERNAL:
+                        return "USB Camera (ID: " + cameraId + ")";
+                    default:
+                        return "Camera " + cameraId;
+                }
+            }
+            
+            return "Camera " + cameraId;
+            
+        } catch (Exception e) {
+            return "Camera " + cameraId;
+        }
+    }
 }
