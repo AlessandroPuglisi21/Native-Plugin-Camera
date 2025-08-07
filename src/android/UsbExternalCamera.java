@@ -4,6 +4,8 @@ package com.cordova.plugin;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import java.util.HashMap;
+import java.util.List;
+import android.view.Surface;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;

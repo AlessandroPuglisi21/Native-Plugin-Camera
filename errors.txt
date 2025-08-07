@@ -1,5 +1,5 @@
 Handling project.properties
-searchFor /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/project.properties
+searchFor /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/project.properties
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running restoreBackups.js
 cordova-custom-config: Skipping auto-restore of config file backup(s)
@@ -8,14 +8,14 @@ cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Aborting applyCustomConfig.js because current hook 'before_prepare' is not configured hook 'after_prepare'
 cordova-custom-config: Finished applying platform config
 The "AndroidWindowSplashScreenAnimatedIcon" value does not exist. Cordova's default will be used.
-Copy /Users/admin/build-server/1754553910657/inde-container24.5/build-extras.gradle to /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android
-Skip /Users/admin/build-server/1754553910657/inde-container24.5/google-services.json copy (path does not exist)
-searchFor /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-searchFor /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-searchFor /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
-wrote /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
-searchFor /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
-wrote /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+Copy /Users/admin/build-server/1754559867115/inde-container24.5/build-extras.gradle to /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android
+Skip /Users/admin/build-server/1754559867115/inde-container24.5/google-services.json copy (path does not exist)
+searchFor /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+wrote /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+searchFor /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+wrote /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Searching config.xml for prefixed elements: custom-preference
@@ -23,7 +23,7 @@ DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/cus
 DEBUG: Searching config.xml for prefixed elements: platform[@name='android']custom-config-file
 DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/custom-resource
 cordova-custom-config: Finished applying platform config
-cordova-plugin-androidx-adapter: Processed 96 source files in 1952ms
+cordova-plugin-androidx-adapter: Processed 96 source files in 2220ms
 cordova-custom-config: Loaded module dependencies
 cordova-custom-config: Running applyCustomConfig.js
 DEBUG: Aborting applyCustomConfig.js because current hook 'before_compile' is not configured hook 'after_prepare'
@@ -40,7 +40,7 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 See https://docs.gradle.org/7.6.4/userguide/command_line_interface.html#sec:command_line_warnings
 
-BUILD SUCCESSFUL in 866ms
+BUILD SUCCESSFUL in 945ms
 1 actionable task: 1 executed
 Subproject Path: CordovaLib
 Subproject Path: app
@@ -86,9 +86,9 @@ The RenderScript APIs are deprecated. They will be removed in Android Gradle plu
 > Task :CordovaLib:extractDeepLinksDebug
 > Task :CordovaLib:processDebugManifest
 > Task :CordovaLib:compileDebugLibraryResources
+> Task :CordovaLib:parseDebugLocalResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
-> Task :CordovaLib:parseDebugLocalResources
 > Task :CordovaLib:generateDebugBuildConfig
 > Task :app:processDebugManifestForPackage
 > Task :CordovaLib:javaPreCompileDebug
@@ -98,10 +98,9 @@ The RenderScript APIs are deprecated. They will be removed in Android Gradle plu
 > Task :CordovaLib:mergeDebugShaders
 > Task :CordovaLib:compileDebugShaders NO-SOURCE
 > Task :CordovaLib:generateDebugAssets UP-TO-DATE
-> Task :CordovaLib:packageDebugAssets
 > Task :CordovaLib:generateDebugRFile
 > Task :app:mergeDebugResources
-> Task :app:mergeDebugAssets
+> Task :CordovaLib:packageDebugAssets
 > Task :app:processDebugResources
 
 > Task :CordovaLib:compileDebugJavaWithJavac
@@ -109,45 +108,46 @@ Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 
 > Task :CordovaLib:bundleLibCompileToJarDebug
-> Task :app:compressDebugAssets
+> Task :app:mergeDebugAssets
 
-> Task :app:compileDebugJavaWithJavac
-/Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:117: error: incompatible types: int cannot be converted to String
-autofocusMode = CaptureRequest.CONTROL_AF_MODE_OFF;
+> Task :app:compileDebugJavaWithJavac FAILED
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:373: error: cannot find symbol
+List<Surface> outputs = Arrays.asList(imageReader.getSurface(), stillReader.getSurface());
 ^
-/Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:122: error: incompatible types: int cannot be converted to String
-autofocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO;
+symbol: class List
+location: class UsbExternalCamera
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:373: error: cannot find symbol
+List<Surface> outputs = Arrays.asList(imageReader.getSurface(), stillReader.getSurface());
 ^
-/Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:126: error: incompatible types: int cannot be converted to String
-autofocusMode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+symbol: class Surface
+location: class UsbExternalCamera
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:751: error: cannot find symbol
+performActualCapture(callbackContext);
 ^
-/Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:435: error: method set in class Builder cannot be applied to given types;
-captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
+symbol: method performActualCapture(CallbackContext)
+location: class UsbExternalCamera
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:773: error: cannot find symbol
+performActualCapture(callbackContext);
 ^
-required: Key<T>,T
-found: Key<Integer>,String
-reason: inference variable T has incompatible bounds
-equality constraints: Integer
-lower bounds: String
-where T is a type-variable:
-T extends Object declared in method <T>set(Key<T>,T)
-/Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:440: error: method set in class Builder cannot be applied to given types;
-captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, exposureMode);
+symbol: method performActualCapture(CallbackContext)
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:777: error: cannot find symbol
+performActualCapture(callbackContext);
 ^
-required: Key<T>,T
-found: Key<Integer>,String
-reason: inference variable T has incompatible bounds
-equality constraints: Integer
-lower bounds: String
-where T is a type-variable:
-T extends Object declared in method <T>set(Key<T>,T)
+symbol: method performActualCapture(CallbackContext)
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:792: error: cannot find symbol
+performActualCapture(callbackContext);
+^
+symbol: method performActualCapture(CallbackContext)
+/Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:798: error: cannot find symbol
+performActualCapture(callbackContext);
+^
+symbol: method performActualCapture(CallbackContext)
+location: class UsbExternalCamera
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
-5 errors
-
-> Task :app:compileDebugJavaWithJavac FAILED
+7 errors
 
 FAILURE: Build failed with an exception.
 
@@ -167,7 +167,7 @@ Deprecated Gradle features were used in this build, making it incompatible with 
 You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
 
 See https://docs.gradle.org/7.6/userguide/command_line_interface.html#sec:command_line_warnings
-32 actionable tasks: 32 executed
+31 actionable tasks: 31 executed
+BUILD FAILED in 9s
 
-BUILD FAILED in 11s
-Command failed with exit code 1: /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/gradlew -b /Users/admin/build-server/1754553910657/inde-container24.5/platforms/android/build.gradle cdvBuildDebug
+Command failed with exit code 1: /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/gradlew -b /Users/admin/build-server/1754559867115/inde-container24.5/platforms/android/build.gradle cdvBuildDebug
