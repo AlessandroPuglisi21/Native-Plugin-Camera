@@ -382,7 +382,7 @@ public class UsbExternalCamera extends CordovaPlugin {
             // Pre-capture per stabilizzare autofocus
             CaptureRequest.Builder precaptureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             precaptureBuilder.addTarget(imageReader.getSurface());
-            precaptureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            precaptureBuilder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
             precaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
             
             if (captureSession != null) {
@@ -391,10 +391,31 @@ public class UsbExternalCamera extends CordovaPlugin {
                     public void onCaptureCompleted(@NonNull CameraCaptureSession session, 
                                                   @NonNull CaptureRequest request, 
                                                   @NonNull TotalCaptureResult result) {
-                        // Attendi che l'autofocus sia completato
-                        backgroundHandler.postDelayed(() -> {
+                        // Controlla lo stato dell'autofocus
+                        Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                        Log.d(TAG, "AF State: " + afState);
+                        
+                        if (afState == null || 
+                            afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                            afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED ||
+                            afState == CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED ||
+                            afState == CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED) {
+                            
+                            // Autofocus completato (o non necessario), scatta la foto
                             performActualCapture(callbackContext);
-                        }, 500); // 500ms delay per autofocus
+                        } else {
+                            // Autofocus ancora in corso, continua a monitorare
+                            startRepeatingCaptureForAF(callbackContext);
+                        }
+                    }
+                    
+                    @Override
+                    public void onCaptureFailed(@NonNull CameraCaptureSession session, 
+                                              @NonNull CaptureRequest request, 
+                                              @NonNull CaptureFailure failure) {
+                        Log.e(TAG, "Pre-capture failed: " + failure.getReason());
+                        // Fallback: scatta comunque la foto
+                        performActualCapture(callbackContext);
                     }
                 }, backgroundHandler);
             } else {
@@ -403,6 +424,48 @@ public class UsbExternalCamera extends CordovaPlugin {
         } catch (Exception e) {
             Log.e(TAG, "Error in captureStillPicture", e);
             callbackContext.error("Failed to take photo: " + e.getMessage());
+        }
+    }
+
+    private void startRepeatingCaptureForAF(CallbackContext callbackContext) {
+        try {
+            CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            builder.addTarget(imageReader.getSurface());
+            builder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
+            
+            captureSession.setRepeatingRequest(builder.build(), new CameraCaptureSession.CaptureCallback() {
+                private int afCheckCount = 0;
+                private final int MAX_AF_CHECKS = 10; // Massimo 10 controlli (circa 1 secondo)
+                
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session, 
+                                              @NonNull CaptureRequest request, 
+                                              @NonNull TotalCaptureResult result) {
+                    Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                    afCheckCount++;
+                    
+                    if (afState == null || 
+                        afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                        afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED ||
+                        afState == CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED ||
+                        afState == CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED ||
+                        afCheckCount >= MAX_AF_CHECKS) {
+                        
+                        // Ferma il repeating request
+                        try {
+                            captureSession.stopRepeating();
+                        } catch (CameraAccessException e) {
+                            Log.e(TAG, "Error stopping repeating request", e);
+                        }
+                        
+                        // Scatta la foto
+                        performActualCapture(callbackContext);
+                    }
+                }
+            }, backgroundHandler);
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error in startRepeatingCaptureForAF", e);
+            performActualCapture(callbackContext);
         }
     }
 
