@@ -12,7 +12,7 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.camera2.*;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.hardware.usb.UsbManager;  // ← AGGIUNGI QUESTA RIGA
+import android.hardware.camera2.CaptureFailure;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Environment;
@@ -873,5 +873,61 @@ public class UsbExternalCamera extends CordovaPlugin {
             callbackContext.error("Error listing cameras: " + e.getMessage());
         }
         return true;
+    }
+}
+
+private void waitForFocusLock(CallbackContext callbackContext, int attemptCount) {
+    final int MAX_ATTEMPTS = 20; // 2 secondi massimo (20 x 100ms)
+    
+    if (attemptCount >= MAX_ATTEMPTS) {
+        Log.w(TAG, "Focus lock timeout after " + (MAX_ATTEMPTS * 100) + "ms, taking photo anyway");
+        performActualCapture(callbackContext);
+        return;
+    }
+    
+    try {
+        CaptureRequest.Builder builder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+        builder.addTarget(imageReader.getSurface());
+        builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        
+        captureSession.capture(builder.build(), new CameraCaptureSession.CaptureCallback() {
+            @Override
+            public void onCaptureCompleted(@NonNull CameraCaptureSession session, 
+                                          @NonNull CaptureRequest request, 
+                                          @NonNull TotalCaptureResult result) {
+                Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                Log.d(TAG, "Waiting for focus lock, attempt " + (attemptCount + 1) + ", AF state: " + afState);
+                
+                if (afState != null && 
+                    (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                     afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED)) {
+                    
+                    Log.d(TAG, "Focus locked! State: " + afState + ", taking photo now");
+                    performActualCapture(callbackContext);
+                    
+                } else if (afState != null && afState == CaptureResult.CONTROL_AF_STATE_INACTIVE) {
+                    Log.w(TAG, "AF inactive, taking photo anyway");
+                    performActualCapture(callbackContext);
+                    
+                } else {
+                    // Focus ancora in corso, riprova dopo 100ms
+                    backgroundHandler.postDelayed(() -> {
+                        waitForFocusLock(callbackContext, attemptCount + 1);
+                    }, 100);
+                }
+            }
+            
+            @Override
+            public void onCaptureFailed(@NonNull CameraCaptureSession session, 
+                                      @NonNull CaptureRequest request, 
+                                      @NonNull CaptureFailure failure) {
+                Log.e(TAG, "Focus lock capture failed: " + failure.getReason());
+                performActualCapture(callbackContext);
+            }
+        }, backgroundHandler);
+        
+    } catch (CameraAccessException e) {
+        Log.e(TAG, "Error waiting for focus lock", e);
+        performActualCapture(callbackContext);
     }
 }
