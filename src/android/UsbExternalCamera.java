@@ -883,7 +883,7 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     // RIMUOVI IL METODO shoot() DUPLICATO - sostituito da performActualCapture
-    // private void shoot() {
+    private void shoot() {
         try {
             CaptureRequest.Builder shot = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             shot.addTarget(stillReader.getSurface());
