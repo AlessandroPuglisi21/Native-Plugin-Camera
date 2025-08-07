@@ -68,17 +68,17 @@ public class UsbExternalCamera extends CordovaPlugin {
     // Aggiungi queste variabili per autofocus ed esposizione:
     private boolean isCameraReady = false;
     
-    // Variabili per autofocus
-    private String autofocusMode = "continuous"; // "continuous", "single", "manual"
+    // Variabili per autofocus - CORREGGI I TIPI
+    private int autofocusMode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE; // int invece di String
     private boolean manualFocusEnabled = false;
-    private float focusDistance = 0.0f; // 0.0f = infinito, 1.0f = minima distanza
+    private float focusDistance = 0.0f;
     
-    // Variabili per esposizione
-    private String exposureMode = "auto"; // "auto", "manual"
+    // Variabili per esposizione - CORREGGI I TIPI  
+    private int exposureMode = CaptureRequest.CONTROL_AE_MODE_ON; // int invece di String
     private boolean manualExposureEnabled = false;
-    private long exposureTime = 0; // in nanosecondi
-    private int iso = 0; // valore ISO
-    private int exposureCompensation = 0; // compensazione esposizione
+    private long exposureTime = 0;
+    private int iso = 0;
+    private int exposureCompensation = 0;
     
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
