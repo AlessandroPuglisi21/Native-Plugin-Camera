@@ -798,10 +798,7 @@ public class UsbExternalCamera extends CordovaPlugin {
             performActualCapture(callbackContext);
         }
     }
-
-}
-
-private void lockFocusThenCapture() {
+    private void lockFocusThenCapture() {
     try {
         CaptureRequest.Builder focus = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         focus.addTarget(imageReader.getSurface());
@@ -822,14 +819,18 @@ private void lockFocusThenCapture() {
     }
 }
 
-private void shoot() {
-    try {
-        CaptureRequest.Builder shot = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-        shot.addTarget(stillReader.getSurface());
-        shot.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-        shot.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
-        shot.set(CaptureRequest.JPEG_QUALITY, (byte) 95);
-        captureSession.capture(shot.build(), null, backgroundHandler);
-    } catch (CameraAccessException ignored) {}
+    private void shoot() {
+        try {
+            CaptureRequest.Builder shot = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            shot.addTarget(stillReader.getSurface());
+            shot.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            shot.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+            shot.set(CaptureRequest.JPEG_QUALITY, (byte) 95);
+            captureSession.capture(shot.build(), null, backgroundHandler);
+        } catch (CameraAccessException ignored) {}
+    }
+
+
 }
+
 
