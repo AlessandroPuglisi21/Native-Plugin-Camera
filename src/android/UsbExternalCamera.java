@@ -65,6 +65,21 @@ public class UsbExternalCamera extends CordovaPlugin {
     private CallbackContext pendingOpenCallback; // Nuovo campo per memorizzare il callback
     private JSONArray pendingOpenArgs; // Nuovo campo per memorizzare gli argomenti
     
+    // Aggiungi queste variabili per autofocus ed esposizione:
+    private boolean isCameraReady = false;
+    
+    // Variabili per autofocus
+    private String autofocusMode = "continuous"; // "continuous", "single", "manual"
+    private boolean manualFocusEnabled = false;
+    private float focusDistance = 0.0f; // 0.0f = infinito, 1.0f = minima distanza
+    
+    // Variabili per esposizione
+    private String exposureMode = "auto"; // "auto", "manual"
+    private boolean manualExposureEnabled = false;
+    private long exposureTime = 0; // in nanosecondi
+    private int iso = 0; // valore ISO
+    private int exposureCompensation = 0; // compensazione esposizione
+    
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         switch (action) {
@@ -355,6 +370,40 @@ public class UsbExternalCamera extends CordovaPlugin {
                         }
                     }
                 }, null);
+    }
+
+    private void captureStillPicture(CallbackContext callbackContext) {
+        try {
+            if (cameraDevice == null) {
+                callbackContext.error("Camera not available");
+                return;
+            }
+    
+            // Pre-capture per stabilizzare autofocus
+            CaptureRequest.Builder precaptureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            precaptureBuilder.addTarget(imageReader.getSurface());
+            precaptureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+            precaptureBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
+            
+            if (captureSession != null) {
+                captureSession.capture(precaptureBuilder.build(), new CameraCaptureSession.CaptureCallback() {
+                    @Override
+                    public void onCaptureCompleted(@NonNull CameraCaptureSession session, 
+                                                  @NonNull CaptureRequest request, 
+                                                  @NonNull TotalCaptureResult result) {
+                        // Attendi che l'autofocus sia completato
+                        backgroundHandler.postDelayed(() -> {
+                            performActualCapture(callbackContext);
+                        }, 500); // 500ms delay per autofocus
+                    }
+                }, backgroundHandler);
+            } else {
+                performActualCapture(callbackContext);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error in captureStillPicture", e);
+            callbackContext.error("Failed to take photo: " + e.getMessage());
+        }
     }
 
     private void performActualCapture(CallbackContext callbackContext) {

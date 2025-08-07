@@ -1,0 +1,224 @@
+Handling project.properties
+searchFor /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/project.properties
+cordova-custom-config: Loaded module dependencies
+cordova-custom-config: Running restoreBackups.js
+cordova-custom-config: Skipping auto-restore of config file backup(s)
+cordova-custom-config: Loaded module dependencies
+cordova-custom-config: Running applyCustomConfig.js
+DEBUG: Aborting applyCustomConfig.js because current hook 'before_prepare' is not configured hook 'after_prepare'
+cordova-custom-config: Finished applying platform config
+The "AndroidWindowSplashScreenAnimatedIcon" value does not exist. Cordova's default will be used.
+Copy /Users/admin/build-server/1754553425894/inde-container24.5/build-extras.gradle to /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android
+Skip /Users/admin/build-server/1754553425894/inde-container24.5/google-services.json copy (path does not exist)
+searchFor /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+searchFor /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+wrote /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/chariotsolutions/nfc/plugin/NfcPlugin.java
+searchFor /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+wrote /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/AndroidManifest.xml
+cordova-custom-config: Loaded module dependencies
+cordova-custom-config: Running applyCustomConfig.js
+DEBUG: Searching config.xml for prefixed elements: custom-preference
+DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/custom-preference
+DEBUG: Searching config.xml for prefixed elements: platform[@name='android']custom-config-file
+DEBUG: Searching config.xml for prefixed elements: platform[@name='android']/custom-resource
+cordova-custom-config: Finished applying platform config
+cordova-plugin-androidx-adapter: Processed 96 source files in 1929ms
+cordova-custom-config: Loaded module dependencies
+cordova-custom-config: Running applyCustomConfig.js
+DEBUG: Aborting applyCustomConfig.js because current hook 'before_compile' is not configured hook 'after_prepare'
+cordova-custom-config: Finished applying platform config
+Checking Java JDK and Android SDK versions
+ANDROID_HOME=/Users/admin/Library/Android/sdk (recommended setting)
+ANDROID_SDK_ROOT=undefined (DEPRECATED)
+Using Android SDK: /Users/admin/Library/Android/sdk
+Starting a Gradle Daemon, 1 incompatible Daemon could not be reused, use --status for details
+> Task :wrapper
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.6.4/userguide/command_line_interface.html#sec:command_line_warnings
+
+BUILD SUCCESSFUL in 5s
+1 actionable task: 1 executed
+Subproject Path: CordovaLib
+Subproject Path: app
+Starting a Gradle Daemon (subsequent builds will be faster)
+
+> Configure project :app
+WARNING:Using flatDir should be avoided because it doesn't support any meta-data formats.
+Warning: SDK processing. This version only understands SDK XML versions up to 3 but an SDK XML file of version 4 was encountered. This can happen if you use versions of Android Studio and the command-line tools that were released at different times.
+WARNING:We recommend using a newer Android Gradle plugin to use compileSdk = 34
+
+This Android Gradle plugin (7.4.2) was tested up to compileSdk = 33
+
+This warning can be suppressed by adding
+android.suppressUnsupportedCompileSdk=34
+to this project's gradle.properties
+
+The build will continue, but you are strongly encouraged to update your project to
+use a newer Android Gradle Plugin that has been tested with compileSdk = 34
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :CordovaLib:preBuild UP-TO-DATE
+> Task :CordovaLib:preDebugBuild UP-TO-DATE
+> Task :CordovaLib:compileDebugAidl NO-SOURCE
+> Task :app:compileDebugAidl NO-SOURCE
+> Task :CordovaLib:packageDebugRenderscript
+> Task :app:compileDebugRenderscript NO-SOURCE
+> Task :app:generateDebugBuildConfig
+> Task :app:javaPreCompileDebug
+> Task :CordovaLib:writeDebugAarMetadata
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+
+> Task :CordovaLib:compileDebugRenderscript
+The RenderScript APIs are deprecated. They will be removed in Android Gradle plugin 9.0. See the following link for a guide to migrate from RenderScript: https://developer.android.com/guide/topics/renderscript/migrate
+
+> Task :CordovaLib:generateDebugResValues
+> Task :CordovaLib:generateDebugResources
+> Task :CordovaLib:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :CordovaLib:extractDeepLinksDebug
+> Task :CordovaLib:compileDebugLibraryResources
+> Task :CordovaLib:generateDebugBuildConfig
+> Task :CordovaLib:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :CordovaLib:mergeDebugShaders
+> Task :CordovaLib:compileDebugShaders NO-SOURCE
+> Task :CordovaLib:generateDebugAssets UP-TO-DATE
+> Task :CordovaLib:packageDebugAssets
+> Task :CordovaLib:parseDebugLocalResources
+> Task :CordovaLib:processDebugManifest
+> Task :app:mergeDebugResources
+> Task :app:mergeDebugAssets
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :CordovaLib:generateDebugRFile
+> Task :app:compressDebugAssets
+> Task :CordovaLib:processDebugJavaRes
+
+> Task :CordovaLib:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :app:processDebugManifestForPackage
+> Task :CordovaLib:bundleLibResDebug
+> Task :CordovaLib:bundleLibCompileToJarDebug
+> Task :app:checkDebugDuplicateClasses
+> Task :app:processDebugResources
+> Task :CordovaLib:bundleLibRuntimeToJarDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:desugarDebugFileDependencies
+
+> Task :app:compileDebugJavaWithJavac
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:102: error: cannot find symbol
+autofocusMode = CaptureRequest.CONTROL_AF_MODE_OFF;
+^
+symbol: variable autofocusMode
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:103: error: cannot find symbol
+manualFocusEnabled = true;
+^
+symbol: variable manualFocusEnabled
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:104: error: cannot find symbol
+focusDistance = (float) options.optDouble("focusDistance", 0.0);
+^
+symbol: variable focusDistance
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:107: error: cannot find symbol
+autofocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO;
+^
+symbol: variable autofocusMode
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:111: error: cannot find symbol
+autofocusMode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+^
+symbol: variable autofocusMode
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:167: error: cannot find symbol
+captureStillPicture(callbackContext);
+^
+symbol: method captureStillPicture(CallbackContext)
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:386: error: cannot find symbol
+captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
+^
+symbol: variable autofocusMode
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:387: error: cannot find symbol
+if (manualFocusEnabled) {
+^
+symbol: variable manualFocusEnabled
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:388: error: cannot find symbol
+captureBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance);
+^
+symbol: variable focusDistance
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:391: error: cannot find symbol
+captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, exposureMode);
+^
+symbol: variable exposureMode
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:392: error: cannot find symbol
+if (manualExposureEnabled) {
+^
+symbol: variable manualExposureEnabled
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:393: error: cannot find symbol
+captureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+^
+symbol: variable exposureTime
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:394: error: cannot find symbol
+captureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, iso);
+^
+symbol: variable iso
+location: class UsbExternalCamera
+/Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/app/src/main/java/com/cordova/plugin/UsbExternalCamera.java:396: error: cannot find symbol
+captureBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureCompensation);
+^
+symbol: variable exposureCompensation
+location: class UsbExternalCamera
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+14 errors
+
+> Task :app:compileDebugJavaWithJavac FAILED
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugJavaWithJavac'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 30s
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.6/userguide/command_line_interface.html#sec:command_line_warnings
+38 actionable tasks: 38 executed
+Command failed with exit code 1: /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/gradlew -b /Users/admin/build-server/1754553425894/inde-container24.5/platforms/android/build.gradle cdvBuildDebug
