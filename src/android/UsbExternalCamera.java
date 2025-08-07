@@ -801,27 +801,89 @@ public class UsbExternalCamera extends CordovaPlugin {
         }
     }
     private void lockFocusThenCapture() {
-    try {
-        CaptureRequest.Builder focus = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-        focus.addTarget(imageReader.getSurface());
-        focus.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
-        captureSession.capture(focus.build(), new CameraCaptureSession.CaptureCallback() {
-            @Override
-            public void onCaptureCompleted(@NonNull CameraCaptureSession s, @NonNull CaptureRequest r, @NonNull TotalCaptureResult res) {
-                Integer st = res.get(CaptureResult.CONTROL_AF_STATE);
-                if (st == null ||
-                    st == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
-                    st == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                    shoot();
+        try {
+            CaptureRequest.Builder focus = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            focus.addTarget(imageReader.getSurface());
+            focus.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
+            captureSession.capture(focus.build(), new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession s, @NonNull CaptureRequest r, @NonNull TotalCaptureResult res) {
+                    Integer st = res.get(CaptureResult.CONTROL_AF_STATE);
+                    if (st == null ||
+                        st == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED ||
+                        st == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+                        performActualCapture(pendingPhotoCallback);
+                    }
+                }
+            }, backgroundHandler);
+        } catch (CameraAccessException e) {
+            performActualCapture(pendingPhotoCallback);
+        }
+    }
+
+    // METODO MANCANTE - Aggiungere questo metodo
+    private void performActualCapture(CallbackContext callbackContext) {
+        if (callbackContext == null) {
+            Log.w(TAG, "performActualCapture called with null callback");
+            return;
+        }
+        
+        try {
+            CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+            captureBuilder.addTarget(stillReader.getSurface());
+            
+            // Configura i parametri di cattura
+            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
+            captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, exposureMode);
+            captureBuilder.set(CaptureRequest.JPEG_QUALITY, (byte) 95);
+            
+            // Se è abilitato il focus manuale
+            if (manualFocusEnabled) {
+                captureBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance);
+            }
+            
+            // Se è abilitata l'esposizione manuale
+            if (manualExposureEnabled) {
+                if (exposureTime > 0) {
+                    captureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+                }
+                if (iso > 0) {
+                    captureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, iso);
                 }
             }
-        }, backgroundHandler);
-    } catch (CameraAccessException e) {
-        shoot();
+            
+            // Imposta compensazione esposizione se specificata
+            if (exposureCompensation != 0) {
+                captureBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureCompensation);
+            }
+            
+            // Esegui la cattura
+            captureSession.capture(captureBuilder.build(), new CameraCaptureSession.CaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureSession session,
+                                              @NonNull CaptureRequest request,
+                                              @NonNull TotalCaptureResult result) {
+                    Log.d(TAG, "Photo capture completed successfully");
+                    // Il salvataggio dell'immagine viene gestito dall'ImageReader.OnImageAvailableListener
+                }
+                
+                @Override
+                public void onCaptureFailed(@NonNull CameraCaptureSession session,
+                                           @NonNull CaptureRequest request,
+                                           @NonNull CaptureFailure failure) {
+                    Log.e(TAG, "Photo capture failed: " + failure.getReason());
+                    callbackContext.error("Photo capture failed: " + failure.getReason());
+                }
+            }, backgroundHandler);
+            
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error performing actual capture", e);
+            callbackContext.error("Failed to capture photo: " + e.getMessage());
+        }
     }
-}
 
-    private void shoot() {
+    // RIMUOVI IL METODO shoot() DUPLICATO - sostituito da performActualCapture
+    // private void shoot() {
         try {
             CaptureRequest.Builder shot = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             shot.addTarget(stillReader.getSurface());
