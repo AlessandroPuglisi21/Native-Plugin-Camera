@@ -62,10 +62,13 @@ public class UsbExternalCamera extends CordovaPlugin {
     private int previewFps = 30;
     
     private boolean isPreviewActive = false;
-    private CallbackContext pendingOpenCallback; // Nuovo campo per memorizzare il callback
-    private JSONArray pendingOpenArgs; // Nuovo campo per memorizzare gli argomenti
+    private CallbackContext pendingOpenCallback;
+    private JSONArray pendingOpenArgs;
     
-    // Aggiungi queste variabili per autofocus ed esposizione:
+    // Nuovi campi per single-session capture
+    private ImageReader stillReader;
+    private CallbackContext pendingPhotoCallback;
+    
     private boolean isCameraReady = false;
     
     // Variabili per autofocus - CORREGGI I TIPI
@@ -176,14 +179,10 @@ public class UsbExternalCamera extends CordovaPlugin {
             callbackContext.error("Camera not opened");
             return true;
         }
-
+    
+        pendingPhotoCallback = callbackContext;
         cordova.getThreadPool().execute(() -> {
-            try {
-                captureStillPicture(callbackContext);
-            } catch (Exception e) {
-                Log.e(TAG, "Error taking photo", e);
-                callbackContext.error("Failed to take photo: " + e.getMessage());
-            }
+            lockFocusThenCapture();
         });
         
         return true;
@@ -204,8 +203,13 @@ public class UsbExternalCamera extends CordovaPlugin {
                 imageReader.close();
                 imageReader = null;
             }
+            if (stillReader != null) {
+                stillReader.close();
+                stillReader = null;
+            }
             isPreviewActive = false;
             frameCallback = null;
+            pendingPhotoCallback = null;
             callbackContext.success("Camera closed");
         } catch (Exception e) {
             Log.e(TAG, "Error closing camera", e);
@@ -318,6 +322,7 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     private void createCameraPreviewSession() throws CameraAccessException {
+        // Crea ImageReader per preview (YUV)
         imageReader = ImageReader.newInstance(previewWidth, previewHeight, ImageFormat.YUV_420_888, 2);
         imageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
             @Override
@@ -339,11 +344,34 @@ public class UsbExternalCamera extends CordovaPlugin {
                 }
             }
         }, backgroundHandler);
-
+    
+        // Crea ImageReader per still capture (JPEG)
+        stillReader = ImageReader.newInstance(previewWidth, previewHeight, ImageFormat.JPEG, 1);
+        stillReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                Image image = reader.acquireLatestImage();
+                if (image != null && pendingPhotoCallback != null) {
+                    try {
+                        String filePath = saveImageToFile(image);
+                        pendingPhotoCallback.success(filePath);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error saving photo", e);
+                        pendingPhotoCallback.error("Failed to save photo: " + e.getMessage());
+                    } finally {
+                        image.close();
+                        pendingPhotoCallback = null;
+                    }
+                }
+            }
+        }, backgroundHandler);
+    
         CaptureRequest.Builder previewRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
         previewRequestBuilder.addTarget(imageReader.getSurface());
-
-        cameraDevice.createCaptureSession(Arrays.asList(imageReader.getSurface()),
+    
+        // Crea sessione con entrambe le surface
+        List<Surface> outputs = Arrays.asList(imageReader.getSurface(), stillReader.getSurface());
+        cameraDevice.createCaptureSession(outputs,
                 new CameraCaptureSession.StateCallback() {
                     @Override
                     public void onConfigured(@NonNull CameraCaptureSession session) {
