@@ -84,23 +84,32 @@ public class UsbExternalCamera extends CordovaPlugin {
     }
 
     private boolean openCamera(JSONArray args, CallbackContext callbackContext) throws JSONException {
-        // RIMUOVI completamente il controllo permessi per USB cameras
-        // if (!checkPermissions()) {
-        //     requestPermissions();
-        //     callbackContext.error("Camera permissions not granted");
-        //     return true;
-        // }
-
         JSONObject options = args.optJSONObject(0);
         if (options != null) {
             previewWidth = options.optInt("width", 1280);
             previewHeight = options.optInt("height", 720);
             previewFps = options.optInt("fps", 30);
             
-            // ← NUOVO: Supporta cameraId specifico
             String requestedCameraId = options.optString("cameraId", null);
             if (requestedCameraId != null && !requestedCameraId.isEmpty()) {
                 externalCameraId = requestedCameraId;
+            }
+            
+            // ← AGGIUNTA: Parametri autofocus
+            String afMode = options.optString("autofocusMode", "continuous");
+            switch (afMode) {
+                case "manual":
+                    autofocusMode = CaptureRequest.CONTROL_AF_MODE_OFF;
+                    manualFocusEnabled = true;
+                    focusDistance = (float) options.optDouble("focusDistance", 0.0);
+                    break;
+                case "single":
+                    autofocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO;
+                    break;
+                case "continuous":
+                default:
+                    autofocusMode = CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+                    break;
             }
         }
         
@@ -302,8 +311,8 @@ public class UsbExternalCamera extends CordovaPlugin {
                     Image image = reader.acquireLatestImage();
                     if (image != null) {
                         try {
-                            String base64Frame = convertImageToBase64(image);
-                            PluginResult result = new PluginResult(PluginResult.Status.OK, base64Frame);
+                            String base64 = convertImageToBase64(image);
+                            PluginResult result = new PluginResult(PluginResult.Status.OK, base64);
                             result.setKeepCallback(true);
                             frameCallback.sendPluginResult(result);
                         } catch (Exception e) {
@@ -348,13 +357,8 @@ public class UsbExternalCamera extends CordovaPlugin {
                 }, null);
     }
 
-    private void captureStillPicture(CallbackContext callbackContext) {
+    private void performActualCapture(CallbackContext callbackContext) {
         try {
-            if (cameraDevice == null) {
-                callbackContext.error("Camera not available");
-                return;
-            }
-
             ImageReader stillReader = ImageReader.newInstance(previewWidth, previewHeight, ImageFormat.JPEG, 1);
             stillReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
                 @Override
@@ -374,11 +378,26 @@ public class UsbExternalCamera extends CordovaPlugin {
                     }
                 }
             }, backgroundHandler);
-
+    
             CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(stillReader.getSurface());
-            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
+            
+            // ← AGGIUNTA: Applicare impostazioni per foto
+            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, autofocusMode);
+            if (manualFocusEnabled) {
+                captureBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, focusDistance);
+            }
+            
+            captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, exposureMode);
+            if (manualExposureEnabled) {
+                captureBuilder.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime);
+                captureBuilder.set(CaptureRequest.SENSOR_SENSITIVITY, iso);
+            } else {
+                captureBuilder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureCompensation);
+            }
+            
+            captureBuilder.set(CaptureRequest.JPEG_QUALITY, (byte) 95);
+    
             cameraDevice.createCaptureSession(Arrays.asList(stillReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
                         @Override
@@ -397,7 +416,7 @@ public class UsbExternalCamera extends CordovaPlugin {
                         }
                     }, backgroundHandler);
         } catch (Exception e) {
-            Log.e(TAG, "Error in captureStillPicture", e);
+            Log.e(TAG, "Error in performActualCapture", e);
             callbackContext.error("Failed to take photo: " + e.getMessage());
         }
     }
